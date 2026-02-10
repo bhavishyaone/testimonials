@@ -1,10 +1,16 @@
-import { Button } from "./components/ui/button.jsx";
-const App  = ()=>{
+import { AuthProvider } from "./context/AuthContext.jsx";
+import Register from "./pages/Register.jsx";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+const App = () => {
   return (
-    <>
-    <h1>Chaliye shuru karte hai.</h1>
-    <Button className="bg-black text-white">press it </Button>
-    </>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   )
 }
 
