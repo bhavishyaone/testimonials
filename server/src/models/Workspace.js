@@ -53,7 +53,6 @@ const workspaceSchema = new mongoose.Schema(
 
     slug: {
       type: String,
-      unique: true,
       required: true
     },
 
