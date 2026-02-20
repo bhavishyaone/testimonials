@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors'
-import helemt from 'helmet'
+import helmet from 'helmet'
 
 import authRoutes from "./src/routes/auth.routes.js";
 import workspaceRoutes from './src/routes/workspace.routes.js'
@@ -10,7 +10,7 @@ import publicRoutes from './src/routes/public.routes.js'
 const app  = express()
 
 app.use(cors())
-app.use(helemt())
+app.use(helmet())
 app.use(express.json())
 
 app.use("/auth",authRoutes)
