@@ -78,6 +78,10 @@ export const submitTestimonial = async(req,res)=>{
         if (!rating) {
             return res.status(400).json({ message: "Rating is required." });
         };
+        if (rating < 1 || rating > 5){
+            return res.status(400).json({message:"Rating must be from 1 to 5."})
+        }
+
 
         if(!message || message.length<30){
             return res.status(400).json({message:"Message is not given properly"})
@@ -102,6 +106,15 @@ export const submitTestimonial = async(req,res)=>{
         if(type=="video" && !req.file){
             return res.status(400).json({message:"video is required."})
         }
+
+        if (workspace.collectionType === "text" && type === "video"){
+            return res.status(400).json({message:"Cant send video with text type."})
+        }
+
+        if (workspace.collectionType === "video" && type === "text") {
+            return res.status(400).json({message:"Cant send the text with video type."})
+        }
+
 
         if(email){
             const alreadysubmitted  = await Testimonial.findOne({
