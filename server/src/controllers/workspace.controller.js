@@ -1,10 +1,8 @@
 import cloudinary from "../config/cloudinary.js";
 import Workspace from '../models/Workspace.js'
+import Testimonial from "../models/Testimonial.js";
 import streamifier from "streamifier";
 import { nanoid } from "nanoid";
-
-
-
 
 const uploadToCloundinary = (buffer)=>{
     return new Promise((resolve,reject)=>{
@@ -24,9 +22,6 @@ const uploadToCloundinary = (buffer)=>{
     })
 }
 
-
-
-
 const generateUniqueSlug = async()=>{
     let slug;
     let exists = true
@@ -37,11 +32,7 @@ const generateUniqueSlug = async()=>{
   return slug;
 }
 
-
-
-
 // Create Workspaces 
-
 
 export const createWorkSpaces = async(req,res)=>{
     try{
@@ -49,11 +40,9 @@ export const createWorkSpaces = async(req,res)=>{
         // console.log("REQ FILE", req.file);
         const { name, headerTitle, customMessage, collectName, collectEmail, collectionType, allowStarRating, theme } = req.body;
 
-
         if(!name || !headerTitle || !customMessage){
             return res.status(400).json({message:"Required field are missing."})
         };
-
         if(customMessage.length<30){
             return res.status(400).json({message:"customMessage must be at least 30 characters."})
         };
@@ -66,7 +55,7 @@ export const createWorkSpaces = async(req,res)=>{
         }
 
         const slug = await generateUniqueSlug();
-        console.log(slug)
+        // console.log(slug)
 
         const workspace = await Workspace.create({
             name:name,
@@ -84,27 +73,19 @@ export const createWorkSpaces = async(req,res)=>{
 
         return res.status(201).json({ message: "Workspace created successfully.", workspace });
     }
-
-
-
     catch(err){
         console.log(err)
         return res.status(500).json({message:"server error."})
     }
 }
 
-
-
 // Get All the Spaces
-
 
 export const getWorkspaces = async(req,res)=>{
     try{
         const page = parseInt(req.query.page) || 1
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
-
-
         const total = await Workspace.countDocuments({owner:req.user})
 
         const workspaces = await Workspace.find({ owner: req.user })
@@ -126,51 +107,33 @@ export const getWorkspaces = async(req,res)=>{
     }
 }
 
-
-
-
-
-
 export const getWorkspaceById = async (req, res) => {
   try {
-
+    
     const workspace = await Workspace.findById(req.params.id);
-
     if (!workspace) {
       return res.status(404).json({ message: "Workspace not found." });
     }
-
-
     if (workspace.owner.toString() !== req.user) {
       return res.status(403).json({ message: "Not authorized." });
     }
-
-
     return res.status(200).json({ workspace });
-
-  } catch (err) {
+  } 
+  catch (err) {
     console.log(err);
     return res.status(500).json({ message: "Server error." });
   }
 };
 
-
-
-
 export const updateWorkspace = async(req,res)=>{
     try{    
-
         const workspace = await Workspace.findById(req.params.id)
-
         if(!workspace){
             return res.status(404).json({ message: "Workspace not found." });
         }
-
         if (workspace.owner.toString() !== req.user) {
         return res.status(403).json({ message: "Not authorized." });
         }
-
-
         const allowedFields = [
         "name",
         "headerTitle",
@@ -181,38 +144,30 @@ export const updateWorkspace = async(req,res)=>{
         "allowStarRating",
         "theme",
         ];
-
-
+        
         const updates = {}
-
 
         allowedFields.forEach((field)=>{
             if(req.body[field]!==undefined){
                 updates[field] = req.body[field]
             }
         })
-
-
+        
         if (updates.customMessage && updates.customMessage.length < 30){
             return res.status(400).json({message:"customMessage must be at least 30 characters."})
         }
-
-
+        
         // Yaha pe Logo Update handle kiya hai 
-
         if (req.file) {
             const result = await uploadToCloundinary(req.file.buffer);
             updates.logo = result.secure_url;
         }
-
 
         const updated = await Workspace.findByIdAndUpdate(
             req.params.id,
             { $set: updates },
             { new: true, runValidators: true }
         );
-
-
         return res.status(200).json({ message: "Workspace updated.", workspace: updated });
 
     }
@@ -223,17 +178,10 @@ export const updateWorkspace = async(req,res)=>{
     }
 };
 
-
-
 // Delete the Workspace 
-
-
 export const deleteWorkspace = async (req, res) => {
-
-  try {
-
+   try {
     const workspace = await Workspace.findById(req.params.id);
-
     if (!workspace) {
       return res.status(404).json({ message: "Workspace not found." });
     }
@@ -243,6 +191,7 @@ export const deleteWorkspace = async (req, res) => {
     }
 
     await Workspace.findByIdAndDelete(req.params.id);
+    await Testimonial.deleteMany({ spaceId: req.params.id })
     return res.status(200).json({ message: "Workspace deleted successfully." });
 
   } 
