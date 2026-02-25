@@ -105,3 +105,76 @@ export const rejectTestimonial = async (req, res) => {
     return res.status(500).json({ message: "Server error." });
   }
 };
+
+
+
+// Like the testimonial 
+
+export const likeTestimonial = async (req, res) => {
+  try {
+    const testimonial = await Testimonial.findById(req.params.id);
+
+    if (!testimonial) {
+      return res.status(404).json({ message: "Testimonial not found." });
+    }
+
+    const workspace = await Workspace.findById(testimonial.spaceId);
+
+    if (!workspace || workspace.owner.toString() !== req.user) {
+      return res.status(403).json({ message: "Not authorized." });
+    }
+
+    const updated = await Testimonial.findByIdAndUpdate(
+      req.params.id,
+      { $set: { liked: !testimonial.liked } },
+      {  returnDocument: 'after' }
+    );
+
+    return res.status(200).json({
+      message: updated.liked ? "Testimonial liked." : "Testimonial unliked.",
+      testimonial: updated
+    });
+
+  }
+  catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Server error." });
+  }
+};
+
+
+export const archiveTestimonial = async (req, res) => {
+  try {
+
+    const testimonial = await Testimonial.findById(req.params.id);
+
+    if (!testimonial) {
+      return res.status(404).json({ message: "Testimonial not found." });
+    }
+
+    const workspace = await Workspace.findById(testimonial.spaceId);
+
+    if (!workspace || workspace.owner.toString() !== req.user) {
+      return res.status(403).json({ message: "Not authorized." });
+    }
+
+    const updated = await Testimonial.findByIdAndUpdate(
+      req.params.id,
+      { $set: { archived: !testimonial.archived } },
+      { returnDocument: 'after' }
+    );
+
+    return res.status(200).json({
+      message: updated.archived ? "Testimonial archived." : "Testimonial unarchived.",
+      testimonial: updated
+    });
+    
+  } 
+  catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Server error." });
+  }
+};
+
+
+
