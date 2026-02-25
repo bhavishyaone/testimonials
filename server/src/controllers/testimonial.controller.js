@@ -192,7 +192,7 @@ export const markSpam = async (req, res) => {
     const updated = await Testimonial.findByIdAndUpdate(
       req.params.id,
       { $set: { spam: !testimonial.spam } },
-      { new: true }
+      { returnDocument: 'after'  }
     );
 
     return res.status(200).json({
