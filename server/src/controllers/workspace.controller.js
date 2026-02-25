@@ -166,7 +166,7 @@ export const updateWorkspace = async(req,res)=>{
         const updated = await Workspace.findByIdAndUpdate(
             req.params.id,
             { $set: updates },
-            { new: true, runValidators: true }
+            { returnDocument: 'after', runValidators: true }
         );
         return res.status(200).json({ message: "Workspace updated.", workspace: updated });
 
