@@ -46,7 +46,6 @@ export const getTestimonial = async(req,res)=>{
 
 
 // Approve Testimonial 
-
 export const approveTestimonial  = async(req,res)=>{
     try{
         const testimonial = await Testimonial.findById(req.params.id)
@@ -75,8 +74,6 @@ export const approveTestimonial  = async(req,res)=>{
 
 
 // Reject the Testimonial 
-
-
 export const rejectTestimonial = async (req, res) => {
 
   try {
@@ -108,8 +105,7 @@ export const rejectTestimonial = async (req, res) => {
 
 
 
-// Like the testimonial 
-
+// Like/Unlike the testimonial 
 export const likeTestimonial = async (req, res) => {
   try {
     const testimonial = await Testimonial.findById(req.params.id);
@@ -142,7 +138,7 @@ export const likeTestimonial = async (req, res) => {
   }
 };
 
-
+// Archive/Unarchive Testimonial
 export const archiveTestimonial = async (req, res) => {
   try {
 
@@ -176,5 +172,66 @@ export const archiveTestimonial = async (req, res) => {
   }
 };
 
+
+// Spam/Removefrom spam  the testomonial 
+export const markSpam = async (req, res) => {
+
+  try {
+    const testimonial = await Testimonial.findById(req.params.id);
+
+    if (!testimonial) {
+      return res.status(404).json({ message: "Testimonial not found." });
+    }
+
+    const workspace = await Workspace.findById(testimonial.spaceId);
+
+    if (!workspace || workspace.owner.toString() !== req.user) {
+      return res.status(403).json({ message: "Not authorized." });
+    }
+
+    const updated = await Testimonial.findByIdAndUpdate(
+      req.params.id,
+      { $set: { spam: !testimonial.spam } },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      message: updated.spam ? "Marked as spam." : "Unmarked as spam.",
+      testimonial: updated
+    });
+
+  } 
+  catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Server error." });
+  }
+};
+
+
+// Delete the testimonial 
+export const deleteTestimonial = async (req, res) => {
+  try {
+
+    const testimonial = await Testimonial.findById(req.params.id);
+
+    if (!testimonial) {
+      return res.status(404).json({ message: "Testimonial not found." });
+    }
+
+    const workspace = await Workspace.findById(testimonial.spaceId);
+
+    if (!workspace || workspace.owner.toString() !== req.user) {
+      return res.status(403).json({ message: "Not authorized." });
+    }
+
+    await Testimonial.findByIdAndDelete(req.params.id);
+    return res.status(200).json({ message: "Testimonial deleted." });
+
+  } 
+  catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Server error." });
+  }
+};
 
 
