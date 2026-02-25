@@ -43,3 +43,65 @@ export const getTestimonial = async(req,res)=>{
         return res.status(500).json({message:"server error."})
     }
 }    
+
+
+// Approve Testimonial 
+
+export const approveTestimonial  = async(req,res)=>{
+    try{
+        const testimonial = await Testimonial.findById(req.params.id)
+         if (!testimonial) {
+            return res.status(404).json({ message: "Testimonial not found." });
+        }
+        const workspace = await Workspace.findById(testimonial.spaceId)
+
+        if (!workspace || workspace.owner.toString() !== req.user) {
+            return res.status(403).json({ message: "Not authorized." });
+        }
+
+        const updated = await Testimonial.findByIdAndUpdate(
+            req.params.id,
+            { $set: { status: "approved" } },
+            { returnDocument: 'after' }
+        );
+
+        return res.status(200).json({ message: "Testimonial approved.", testimonial: updated });
+    }
+    catch(err){
+        console.log(err)
+        return res.status(500).json({message:"server error."})
+    }
+}
+
+
+// Reject the Testimonial 
+
+
+export const rejectTestimonial = async (req, res) => {
+
+  try {
+    const testimonial = await Testimonial.findById(req.params.id);
+
+    if (!testimonial) {
+      return res.status(404).json({ message: "Testimonial not found." });
+    }
+
+    const workspace = await Workspace.findById(testimonial.spaceId);
+
+    if (!workspace || workspace.owner.toString() !== req.user) {
+      return res.status(403).json({ message: "Not authorized." });
+    }
+
+    const updated = await Testimonial.findByIdAndUpdate(
+      req.params.id,
+      { $set: { status: "rejected" } },
+      { returnDocument: 'after' }
+    );
+    
+    return res.status(200).json({ message: "Testimonial rejected.", testimonial: updated });
+  } 
+  catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Server error." });
+  }
+};
