@@ -235,3 +235,53 @@ export const reorderWall = async (req, res) => {
     return res.status(500).json({ message: "Server error." });
   }
 };
+
+
+
+export const getEmbedData = async (req, res) => {
+  try {
+
+    const wall = await WallOfLove.findById(req.params.wallId);
+    if (!wall) {
+      return res.status(404).json({ message: "Wall not found." });
+    }
+   
+    const testimonials = await Testimonial.find({
+      _id: { $in: wall.testimonialOrder },
+      status: "approved",
+      spam: false,
+      archived: false
+    }).select("type name rating message videoUrl createdAt");
+   
+    wall.testimonialOrder.forEach((id, index) => {
+      orderMap[id.toString()] = index;
+    });
+    
+    const sortedTestimonials = testimonials.sort((a, b) => {
+      return orderMap[a._id.toString()] - orderMap[b._id.toString()];
+    });
+
+    return res.status(200).json({
+      config: {
+        layout: wall.layout,
+        darkTheme: wall.darkTheme,
+        hideDate: wall.hideDate,
+        hideSourceIcons: wall.hideSourceIcons,
+        showClosedCaptions: wall.showClosedCaptions,
+        autoplay: wall.autoplay,
+        showMoreButton: wall.showMoreButton,
+        oneRowSlider: wall.oneRowSlider,
+        sameHeightVideos: wall.sameHeightVideos,
+        minimizeImages: wall.minimizeImages,
+        cardSize: wall.cardSize,
+        arrowColor: wall.arrowColor
+      },
+      testimonials: sortedTestimonials
+    });
+
+  } 
+  catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Server error." });
+  }
+};
