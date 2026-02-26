@@ -107,8 +107,7 @@ export const getWall = async(req,res)=>{
             return res.status(404).json({ message: "Wall not created yet." });
         }
 
-        const embedCode = `<iframe src="${process.env.BASE_URL}/embed/${wall._id}" width="100%" height="600" frameborder="0" style="border:none;overflow:hidden;" scrolling="no"></iframe>`;
-        return res.status(200).json({ wall, embedCode });
+        return res.status(200).json({ wall});
     
     }
 
@@ -179,12 +178,10 @@ export const updateWall = async (req, res) => {
       { $set: updates },
       { returnDocument: "after" }
     );
-
-    const embedCode = `<iframe src="${process.env.BASE_URL}/embed/${updated._id}" width="100%" height="600" frameborder="0" style="border:none;overflow:hidden;" scrolling="no"></iframe>`;
+    
     return res.status(200).json({
       message: "Wall updated.",
-      wall: updated,
-      embedCode
+      wall: updated
     });
 
   } 
