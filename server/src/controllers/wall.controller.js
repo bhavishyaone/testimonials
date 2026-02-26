@@ -253,10 +253,12 @@ export const getEmbedData = async (req, res) => {
       archived: false
     }).select("type name rating message videoUrl createdAt");
    
+    
+    const orderMap = {};
     wall.testimonialOrder.forEach((id, index) => {
       orderMap[id.toString()] = index;
     });
-    
+
     const sortedTestimonials = testimonials.sort((a, b) => {
       return orderMap[a._id.toString()] - orderMap[b._id.toString()];
     });
