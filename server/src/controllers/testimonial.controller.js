@@ -1,5 +1,7 @@
 import Testimonial from "../models/Testimonial.js";
 import Workspace from "../models/Workspace.js";
+import cloudinary from "../config/cloudinary.js";
+
 
 // get Testimonial for inbox 
 export const getTestimonial = async(req,res)=>{
@@ -224,6 +226,15 @@ export const deleteTestimonial = async (req, res) => {
       return res.status(403).json({ message: "Not authorized." });
     }
 
+    if (testimonial.videoUrl) {
+
+    const parts = testimonial.videoUrl.split("/");
+    const fileName = parts[parts.length - 1].split(".")[0]; 
+    const folder = parts[parts.length - 2]; 
+    const parentFolder = parts[parts.length - 3]; 
+    const publicId = `${parentFolder}/${folder}/${fileName}`;
+    await cloudinary.uploader.destroy(publicId, { resource_type: "video" });
+}
     await Testimonial.findByIdAndDelete(req.params.id);
     return res.status(200).json({ message: "Testimonial deleted." });
 

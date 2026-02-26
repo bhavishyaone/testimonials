@@ -306,3 +306,28 @@ export const getEmbedCode = async (req, res) => {
 };
 
 
+
+export const deleteWall = async (req, res) => {
+  try {
+    const workspace = await Workspace.findById(req.params.id);
+    if (!workspace) {
+      return res.status(404).json({ message: "Workspace not found." });
+    }
+    if (workspace.owner.toString() !== req.user) {
+      return res.status(403).json({ message: "Not authorized." });
+    }
+
+    const wall = await WallOfLove.findOne({ workspaceId: req.params.id });
+    if (!wall) {
+      return res.status(404).json({ message: "Wall not found." });
+    }
+
+    await WallOfLove.findByIdAndDelete(wall._id);
+    return res.status(200).json({ message: "Wall deleted." });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Server error." });
+  }
+};
+
+
