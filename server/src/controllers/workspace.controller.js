@@ -1,6 +1,7 @@
 import cloudinary from "../config/cloudinary.js";
 import Workspace from '../models/Workspace.js'
 import Testimonial from "../models/Testimonial.js";
+import WallOfLove from "../models/WallOfLove.js";
 import streamifier from "streamifier";
 import { nanoid } from "nanoid";
 
@@ -192,6 +193,8 @@ export const deleteWorkspace = async (req, res) => {
 
     await Workspace.findByIdAndDelete(req.params.id);
     await Testimonial.deleteMany({ spaceId: req.params.id })
+    await WallOfLove.deleteOne({ workspaceId: req.params.id });
+
     return res.status(200).json({ message: "Workspace deleted successfully." });
 
   } 
