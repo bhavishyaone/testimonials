@@ -92,3 +92,32 @@ export const createWall = async(req,res)=>{
 
     }
 }
+
+
+export const getWall = async(req,res)=>{
+    try{
+        const workspace = await Workspace.findById(req.params.id);
+        
+        if (!workspace) {
+            return res.status(404).json({ message: "Workspace not found." });
+        }
+
+        if (workspace.owner.toString() !== req.user) {
+            return res.status(403).json({ message: "Not authorized." });
+        }
+
+        const wall = await WallOfLove.findOne({ workspaceId: req.params.id });
+        if (!wall) {
+            return res.status(404).json({ message: "Wall not created yet." });
+        }
+
+        const embedCode = `<iframe src="${process.env.BASE_URL}/embed/${wall._id}" width="100%" height="600" frameborder="0" style="border:none;overflow:hidden;" scrolling="no"></iframe>`;
+        return res.status(200).json({ wall, embedCode });
+    
+    }
+
+    catch(err){
+        console.log(err)
+        return res.status(500).json({message:"server error."})
+    }
+}
