@@ -76,13 +76,9 @@ export const createWall = async(req,res)=>{
             testimonialOrder
         });
 
-        
-        const embedCode = `<iframe src="${process.env.BASE_URL}/embed/${wall._id}" width="100%" height="600" frameborder="0" style="border:none;overflow:hidden;" scrolling="no"></iframe>`;
-
         return res.status(201).json({
             message: "Wall of Love created.",
-            wall,
-            embedCode
+            wall
         })
 
     }
