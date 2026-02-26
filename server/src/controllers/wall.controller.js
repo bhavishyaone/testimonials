@@ -121,3 +121,79 @@ export const getWall = async(req,res)=>{
         return res.status(500).json({message:"server error."})
     }
 }
+
+export const updateWall = async (req, res) => {
+  try {
+
+    const workspace = await Workspace.findById(req.params.id);
+
+    if (!workspace) {
+      return res.status(404).json({ message: "Workspace not found." });
+    }
+    if (workspace.owner.toString() !== req.user) {
+      return res.status(403).json({ message: "Not authorized." });
+    }
+
+    const wall = await WallOfLove.findOne({ workspaceId: req.params.id });
+    if (!wall) {
+      return res.status(404).json({ message: "Wall not found." });
+    }
+
+    const allowedFields = [
+      "layout",
+      "darkTheme",
+      "hideDate",
+      "hideSourceIcons",
+      "showClosedCaptions",
+      "autoplay",
+      "showMoreButton",
+      "oneRowSlider",
+      "sameHeightVideos",
+      "minimizeImages",
+      "cardSize",
+      "arrowColor",
+      "testimonialOrder"
+    ];
+
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ message: "Request body is empty." });
+    }
+
+    // console.log(req.body)
+
+    const updates = {};
+
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    });
+
+
+    if (updates.layout && !["masonry-animated", "masonry-fixed", "carousel"].includes(updates.layout)) {
+      return res.status(400).json({ message: "Invalid layout." });
+    }
+
+    if (updates.cardSize && !["small", "medium", "large"].includes(updates.cardSize)) {
+      return res.status(400).json({ message: "Invalid card size." });
+    }
+
+    const updated = await WallOfLove.findByIdAndUpdate(
+      wall._id,
+      { $set: updates },
+      { returnDocument: "after" }
+    );
+
+    const embedCode = `<iframe src="${process.env.BASE_URL}/embed/${updated._id}" width="100%" height="600" frameborder="0" style="border:none;overflow:hidden;" scrolling="no"></iframe>`;
+    return res.status(200).json({
+      message: "Wall updated.",
+      wall: updated,
+      embedCode
+    });
+
+  } 
+  catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Server error." });
+  }
+};
