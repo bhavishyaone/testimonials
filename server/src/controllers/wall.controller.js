@@ -295,7 +295,9 @@ export const getEmbedCode = async (req, res) => {
     if (!wall) {
       return res.status(404).json({ message: "Wall not created yet." });
     }
-    const embedCode = `<iframe src="${process.env.BASE_URL}/embed/${wall._id}" width="100%" height="600" frameborder="0" style="border:none;overflow:hidden;" scrolling="no"></iframe>`;
+    const embedCode = `<script type="text/javascript" src="${process.env.BASE_URL}/js/iframeResizer.min.js"></script>
+                       \n<iframe id='testimonial-${wall._id}' src="${process.env.BASE_URL}/embed/${wall._id}" frameborder="0" scrolling="no" width="100%"></iframe>
+                       \n<script type="text/javascript">iFrameResize({log: false, checkOrigin: false}, '#testimonial-${wall._id}');</script>`;
     return res.status(200).json({ embedCode });
   } catch (err) {
     console.log(err);
