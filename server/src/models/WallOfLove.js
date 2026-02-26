@@ -82,6 +82,6 @@ const wallOfLoveSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-wallOfLoveSchema.index({ workspaceId: 1 });
+
 
 export default mongoose.model("WallOfLove", wallOfLoveSchema);
