@@ -9,6 +9,7 @@ router.get("/workspace/:id/wall/testimonials",authMiddleware,getWallTestimonials
 router.post("/workspace/:id/wall", authMiddleware, createWall);
 router.get("/workspace/:id/wall", authMiddleware, getWall);
 router.patch("/workspace/:id/wall", authMiddleware, updateWall);
+router.patch("/workspace/:id/wall/reorder", authMiddleware, reorderWall);
 
 
 

@@ -197,3 +197,41 @@ export const updateWall = async (req, res) => {
     return res.status(500).json({ message: "Server error." });
   }
 };
+
+
+export const reorderWall = async (req, res) => {
+
+  try {
+
+    const workspace = await Workspace.findById(req.params.id);
+
+    if (!workspace) {
+      return res.status(404).json({ message: "Workspace not found." });
+    }
+    if (workspace.owner.toString() !== req.user) {
+      return res.status(403).json({ message: "Not authorized." });
+    }
+
+    const wall = await WallOfLove.findOne({ workspaceId: req.params.id });
+    if (!wall) {
+      return res.status(404).json({ message: "Wall not found." });
+    }
+
+    const { testimonialOrder } = req.body;
+    if (!testimonialOrder || !Array.isArray(testimonialOrder) || testimonialOrder.length === 0) {
+      return res.status(400).json({ message: "Testimonial order array is required." });
+    }
+
+    const updated = await WallOfLove.findByIdAndUpdate(
+      wall._id,
+      { $set: { testimonialOrder } },
+      { returnDocument: "after" }
+    );
+    
+    return res.status(200).json({ message: "Wall order updated.", wall: updated });
+  } 
+  catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Server error." });
+  }
+};
