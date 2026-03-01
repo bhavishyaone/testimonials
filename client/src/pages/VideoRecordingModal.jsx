@@ -11,6 +11,13 @@ export default function VideoRecordingModal({ onClose }) {
   const [selectedAudioDeviceId, setSelectedAudioDeviceId] = useState("");
   const [fileObject, setFileObject] = useState(null);
 
+  const mediaRecorderRef = useRef(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordedChunks, setRecordedChunks] = useState([]);
+  const [recordTime, setRecordTime] = useState(0);
+  const [isReviewing, setIsReviewing] = useState(false);
+  const timerRef = useRef(null);
+
   useEffect(() => {
     async function getDevices() {
       try {
@@ -92,6 +99,99 @@ export default function VideoRecordingModal({ onClose }) {
     onClose();
   };
 
+  const startRecording = () => {
+    if (!stream) return;
+    setIsRecording(true);
+    setRecordedChunks([]);
+    setRecordTime(0);
+
+    const mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+    mediaRecorderRef.current = mediaRecorder;
+
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data && event.data.size > 0) {
+        setRecordedChunks(prev => [...prev, event.data]);
+      }
+    };
+
+    mediaRecorder.start();
+
+    timerRef.current = setInterval(() => {
+      setRecordTime(prev => {
+        if (prev >= 119) {
+          stopRecording(); 
+          return 120;
+        }
+        return prev + 1;
+      });
+    }, 1000);
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+      mediaRecorderRef.current.stop();
+    }
+    clearInterval(timerRef.current);
+    setIsRecording(false);
+    setIsReviewing(true);
+  };
+
+  const handleRetake = async () => {
+    setRecordedChunks([]);
+    setFileObject(null);
+    setIsReviewing(false);
+    setRecordTime(0);
+    
+
+    if (videoRef.current) {
+      videoRef.current.controls = false;
+      videoRef.current.src = "";
+    }
+    try {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      
+      const newStream = await navigator.mediaDevices.getUserMedia({
+        video: selectedVideoDeviceId ? { deviceId: { exact: selectedVideoDeviceId } } : true,
+        audio: selectedAudioDeviceId ? { deviceId: { exact: selectedAudioDeviceId } } : true
+      });
+
+      setStream(newStream);
+      if (videoRef.current) {
+        videoRef.current.srcObject = newStream;
+      }
+    } catch (err) {
+      console.error("Error restarting stream on retake:", err);
+    }
+  };
+
+  const handleSubmit = () => {
+    if (recordedChunks.length) {
+      const blob = new Blob(recordedChunks, { type: "video/webm" });
+      console.log("Submitting recorded video blob:", blob);
+    } else if (fileObject) {
+      console.log("Submitting uploaded file:", fileObject);
+    }
+    handleClose();
+  };
+
+  const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  };
+
+  useEffect(() => {
+    if (isReviewing && recordedChunks.length > 0 && videoRef.current) {
+      const blob = new Blob(recordedChunks, { type: "video/webm" });
+      const url = URL.createObjectURL(blob);
+      videoRef.current.srcObject = null;
+      videoRef.current.src = url;
+      videoRef.current.controls = true;
+    }
+  }, [isReviewing, recordedChunks]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-sans">
       
@@ -111,23 +211,23 @@ export default function VideoRecordingModal({ onClose }) {
         <h2 className="text-xl font-bold text-white mb-2 tracking-tight">
           Check Your Camera & Microphone
         </h2>
-        <p className="text-[#888888] text-sm mb-6 text-center">
-          You have up to 120 seconds. You can review before submitting.
-        </p>
+        
 
         <div className="w-full aspect-video bg-[#111111] rounded-xl border border-[#2A2A2A] mb-8 relative flex flex-col items-center justify-center overflow-hidden">
           
           <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-md flex items-center gap-2 z-10">
-            <div className={`w-2 h-2 rounded-full ${fileObject ? 'bg-blue-500' : 'bg-red-500'}`} />
-            <span className="text-white text-[10px] font-bold tracking-widest">{fileObject ? 'FILE' : 'LIVE'}</span>
+            <div className={`w-2 h-2 rounded-full ${isRecording ? 'bg-red-500 animate-pulse' : (fileObject ? 'bg-blue-500' : 'bg-red-500')}`} />
+            <span className="text-white text-[10px] font-bold tracking-widest">
+              {isRecording ? `REC ${formatTime(recordTime)}` : (fileObject ? 'FILE' : 'LIVE')}
+            </span>
           </div>
 
           <video 
             ref={videoRef}
             autoPlay 
             playsInline 
-            muted={!fileObject} 
-            className={`w-full h-full object-cover ${!fileObject ? 'transform scale-x-[-1]' : ''}`}
+            muted={!fileObject && !isReviewing} 
+            className={`w-full h-full object-cover ${(!fileObject && !isReviewing) ? 'transform scale-x-[-1]' : ''}`}
           />
 
           {!stream && !fileObject && (
@@ -135,7 +235,7 @@ export default function VideoRecordingModal({ onClose }) {
           )}
         </div>
 
-        <div className="w-full text-left mb-8">
+        <div className={`w-full text-left mb-8 transition-opacity ${isRecording || isReviewing || fileObject ? 'opacity-30 pointer-events-none' : ''}`}>
           <p className="text-[#666666] text-[10px] font-bold tracking-[0.15em] uppercase mb-4">
             Device Settings
           </p>
@@ -148,7 +248,7 @@ export default function VideoRecordingModal({ onClose }) {
               </span>
               <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-500 flex-shrink-0"><path d="M4.18179 6.18181C4.35753 6.00608 4.64245 6.00608 4.81819 6.18181L7.49999 8.86362L10.1818 6.18181C10.3575 6.00608 10.6424 6.00608 10.8182 6.18181C10.9939 6.35755 10.9939 6.64247 10.8182 6.81821L7.81819 9.81821C7.73379 9.9026 7.61934 9.95001 7.49999 9.95001C7.38064 9.95001 7.26618 9.9026 7.18179 9.81821L4.18179 6.81821C4.00605 6.64247 4.00605 6.35755 4.18179 6.18181Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
               <select 
-                disabled={!!fileObject}
+                disabled={!!fileObject || isRecording || isReviewing}
                 className="absolute inset-0 opacity-0 cursor-pointer w-full h-full disabled:cursor-not-allowed"
                 value={selectedVideoDeviceId}
                 onChange={(e) => setSelectedVideoDeviceId(e.target.value)}
@@ -170,7 +270,7 @@ export default function VideoRecordingModal({ onClose }) {
               </span>
               <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-500 flex-shrink-0"><path d="M4.18179 6.18181C4.35753 6.00608 4.64245 6.00608 4.81819 6.18181L7.49999 8.86362L10.1818 6.18181C10.3575 6.00608 10.6424 6.00608 10.8182 6.18181C10.9939 6.35755 10.9939 6.64247 10.8182 6.81821L7.81819 9.81821C7.73379 9.9026 7.61934 9.95001 7.49999 9.95001C7.38064 9.95001 7.26618 9.9026 7.18179 9.81821L4.18179 6.81821C4.00605 6.64247 4.00605 6.35755 4.18179 6.18181Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
               <select 
-                disabled={!!fileObject}
+                disabled={!!fileObject || isRecording || isReviewing}
                 className="absolute inset-0 opacity-0 cursor-pointer w-full h-full disabled:cursor-not-allowed"
                 value={selectedAudioDeviceId}
                 onChange={(e) => setSelectedAudioDeviceId(e.target.value)}
@@ -191,19 +291,46 @@ export default function VideoRecordingModal({ onClose }) {
           </div>
         </div>
 
-        <Button className="w-full bg-white hover:bg-gray-100 text-black font-bold py-6 rounded-lg text-base mb-4">
-          Record My Video
-        </Button>
+        {isReviewing || fileObject ? (
+          <div className="w-full flex gap-3 mb-4">
+            <Button 
+              onClick={handleRetake}
+              variant="outline" 
+              className="flex-1 bg-transparent hover:bg-[#2A2A2A] text-white border-[#333] font-bold py-6 rounded-lg text-base"
+            >
+              Retake
+            </Button>
+            <Button 
+              onClick={handleSubmit}
+              className="flex-1 bg-white hover:bg-gray-100 text-black font-bold py-6 rounded-lg text-base"
+            >
+              Submit Video
+            </Button>
+          </div>
+        ) : (
+          <Button 
+            onClick={isRecording ? stopRecording : startRecording}
+            className={`w-full font-bold py-6 rounded-lg text-base mb-4 transition-colors ${
+              isRecording 
+                ? 'bg-red-500 hover:bg-red-600 text-white' 
+                : 'bg-white hover:bg-gray-100 text-black'
+            }`}
+          >
+            {isRecording ? "Stop Recording" : "Record My Video"}
+          </Button>
+        )}
 
-        <label className="text-[#888888] text-xs hover:text-white transition-colors font-medium cursor-pointer">
-          Choose a File to Submit
-          <input 
-            type="file" 
-            accept="video/*" 
-            className="hidden" 
-            onChange={handleFileUpload} 
-          />
-        </label>
+        {!isRecording && !isReviewing && !fileObject && (
+          <label className="text-[#888888] text-xs hover:text-white transition-colors font-medium cursor-pointer">
+            Choose a File to Submit
+            <input 
+              type="file" 
+              accept="video/*" 
+              className="hidden" 
+              onChange={handleFileUpload} 
+            />
+          </label>
+        )}
 
       </div>
     </div>
