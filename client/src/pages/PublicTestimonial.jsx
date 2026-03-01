@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { Video, Edit3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import VideoRecordingModal from "./VideoRecordingModal.jsx";
+import TextTestimonialModal from "./TextTestimonialModal.jsx";
 
 export default function PublicTestimonial({ spaceName = "Bhavishya's Product", theme = "dark" }) {
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const [isTextModalOpen, setIsTextModalOpen] = useState(false);
   return (
     <div className={`min-h-screen flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden transition-colors duration-300 ${theme === "dark" ? "bg-[#0A0A0A]" : "bg-gray-50"}`}>
       
@@ -55,6 +57,7 @@ export default function PublicTestimonial({ spaceName = "Bhavishya's Product", t
           </Button>
           <Button 
             variant="outline"
+            onClick={() => setIsTextModalOpen(true)}
             className={`w-full border text-base font-bold py-6 rounded-lg transition-colors flex items-center justify-center gap-3 ${theme === "dark" ? "bg-[#151515] hover:bg-[#222222] border-[#333333] text-white hover:text-white" : "bg-white hover:bg-gray-50 border-gray-200 text-gray-900 hover:text-gray-900"}`}
           >
             <Edit3 className={`w-5 h-5 ${theme === "dark" ? "text-[#888]" : "text-gray-500"}`} /> Send in text
@@ -69,6 +72,10 @@ export default function PublicTestimonial({ spaceName = "Bhavishya's Product", t
 
       {isVideoModalOpen && (
         <VideoRecordingModal onClose={() => setIsVideoModalOpen(false)} />
+      )}
+
+      {isTextModalOpen && (
+        <TextTestimonialModal onClose={() => setIsTextModalOpen(false)} spaceName={spaceName} />
       )}
 
     </div>
