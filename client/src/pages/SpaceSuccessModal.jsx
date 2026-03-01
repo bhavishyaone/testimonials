@@ -71,3 +71,4 @@ export default function SpaceSuccessModal({ spaceName = "Bhavishya's Product", o
     </div>
   );
 }
+

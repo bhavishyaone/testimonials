@@ -4,6 +4,7 @@ import Login from "./pages/Login.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import CreateSpaceModal from "./pages/CreateSpaceModal.jsx";
 import SpaceSuccessModal from "./pages/SpaceSuccessModal.jsx";
+import SpaceInbox from "./pages/SpaceInbox.jsx";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 const App = () => {
@@ -16,6 +17,7 @@ const App = () => {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/create-space" element={<CreateSpaceModal onClose={() => window.history.back()} />} />
           <Route path="/space-success" element={<SpaceSuccessModal onClose={() => window.history.back()} />} />
+          <Route path="/inbox" element={<SpaceInbox />} />
         </Routes>
       </Router>
     </AuthProvider>
