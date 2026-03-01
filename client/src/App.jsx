@@ -6,6 +6,7 @@ import CreateSpaceModal from "./pages/CreateSpaceModal.jsx";
 import SpaceSuccessModal from "./pages/SpaceSuccessModal.jsx";
 import SpaceInbox from "./pages/SpaceInbox.jsx";
 import PublicTestimonial from "./pages/PublicTestimonial.jsx";
+import ThankYou from "./pages/ThankYou.jsx";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 const App = () => {
@@ -19,6 +20,7 @@ const App = () => {
           <Route path="/create-space" element={<CreateSpaceModal onClose={() => window.history.back()} />} />
           <Route path="/space-success" element={<SpaceSuccessModal onClose={() => window.history.back()} />} />
           <Route path="/inbox" element={<SpaceInbox />} />
+          <Route path="/thank-you" element={<ThankYou />} />
           <Route path="/:spaceSlug" element={<PublicTestimonial />} />
         </Routes>
       </Router>
