@@ -36,9 +36,6 @@ export default function Dashboard() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48 bg-[#1A1A1A] border-[#2A2A2A] text-white">
             <DropdownMenuItem className="focus:bg-[#2A2A2A] focus:text-white cursor-pointer">
-              Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem className="focus:bg-[#2A2A2A] focus:text-white cursor-pointer">
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
