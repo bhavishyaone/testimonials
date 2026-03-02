@@ -2,49 +2,7 @@ import React, { useState } from "react";
 import { Search, Inbox, Heart, Settings, Share2, ArrowLeft, Heart as HeartOutline, Trash2, CheckCircle, XCircle, Video as VideoIcon, Archive, AlertOctagon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
-
-const DUMMY_TESTIMONIALS = [
-  {
-    id: 1,
-    name: "Sarah Jenkins",
-    email: "sarah@acmecorp.io",
-    timeAgo: "2h ago",
-    avatarInitial: "S",
-    avatarColor: "bg-[#D1FADF] text-[#047857]",
-    rating: 5,
-    content: "The automated collection workflow is a game changer for us. We've collected more testimonials in 2 weeks than we did the entire last year. Interface is buttery smooth.",
-    type: "text",
-    status: "pending",
-    liked: false
-  },
-  {
-    id: 2,
-    name: "Mark Thompson",
-    email: "mark@designflow.com",
-    timeAgo: "1d ago",
-    avatarInitial: "M",
-    avatarColor: "bg-[#E0F2FE] text-[#0369A1]",
-    rating: 5,
-    content: "Finally a tool that doesn't feel clunky. The embed widgets look fantastic on our landing page and matching our dark mode theme was effortless.",
-    type: "text",
-    status: "approved",
-    liked: true
-  },
-  {
-    id: 3,
-    name: "Elena Rodriguez",
-    email: "elena@creativehub.es",
-    timeAgo: "2d ago",
-    avatarInitial: "E",
-    avatarColor: "bg-[#FCE7F3] text-[#BE185D]",
-    rating: 5,
-    type: "video",
-    videoThumbnail: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400&h=300",
-    status: "pending",
-    liked: false
-  },
-];
+import { Link } from "react-router-dom";
 
 const FilterButton = ({ active, label, onClick }) => (
   <button
@@ -69,10 +27,9 @@ const StarRating = ({ rating }) => (
   </div>
 );
 
-export default function SpaceInbox() {
+export default function SpaceInbox({ testimonials, setTestimonials }) {
   const [filter, setFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [testimonials, setTestimonials] = useState(DUMMY_TESTIMONIALS);
 
   const filteredTestimonials = testimonials.filter(t => {
 
@@ -137,9 +94,9 @@ export default function SpaceInbox() {
             <button className="w-full flex items-center gap-3 px-3 py-2 bg-[#1A1A1A] text-white rounded-lg text-sm font-medium">
               <Inbox className="w-4 h-4" /> Inbox
             </button>
-            <button className="w-full flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-[#1A1A1A] rounded-lg text-sm font-medium transition-colors">
+            <Link to="/wall-of-love" className="w-full flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-[#1A1A1A] rounded-lg text-sm font-medium transition-colors">
               <Heart className="w-4 h-4" /> Wall of Love
-            </button>
+            </Link>
           </nav>
 
           <nav className="space-y-1 mt-8">
