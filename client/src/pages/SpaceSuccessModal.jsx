@@ -1,15 +1,24 @@
 import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { X, Copy, Check, Link as LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default function SpaceSuccessModal({ spaceName = "Bhavishya's Product", onClose }) {
+export default function SpaceSuccessModal() {
   const [copied, setCopied] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const spaceName = location.state?.spaceName || "Bhavishya's Product";
   const publicUrl = `https://useproof.io/${spaceName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(publicUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleClose = () => {
+    navigate("/inbox");
   };
 
   return (
@@ -27,7 +36,7 @@ export default function SpaceSuccessModal({ spaceName = "Bhavishya's Product", o
         <div className="p-8 pb-6 flex flex-col items-center text-center relative">
           
           <button 
-            onClick={onClose}
+            onClick={handleClose}
             className="absolute top-4 right-4 text-[#6B6B6B] hover:text-white transition-colors"
           >
             <X className="w-4 h-4" />
@@ -60,7 +69,7 @@ export default function SpaceSuccessModal({ spaceName = "Bhavishya's Product", o
           </div>
 
           <Button 
-            onClick={onClose}
+            onClick={handleClose}
             className="w-full bg-white hover:bg-gray-100 text-black font-semibold rounded-lg py-5 text-sm"
           >
             Close

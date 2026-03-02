@@ -68,7 +68,7 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/create-space" element={<CreateSpaceModal onClose={() => window.history.back()} />} />
-          <Route path="/space-success" element={<SpaceSuccessModal onClose={() => window.history.back()} />} />
+          <Route path="/space-success" element={<SpaceSuccessModal />} />
           <Route path="/inbox" element={<SpaceInbox testimonials={testimonials} setTestimonials={setTestimonials} />} />
           <Route path="/wall-of-love" element={<WallOfLove testimonials={testimonials} />} />
           <Route path="/thank-you" element={<ThankYou />} />

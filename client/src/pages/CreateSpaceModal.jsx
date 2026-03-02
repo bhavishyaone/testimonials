@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { X, Video, Edit3, Image as ImageIcon, Check, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,11 +22,23 @@ export default function CreateSpaceModal({ onClose }) {
     theme: "light",
     collectName: true,
     collectEmail: true,
+    collectEmail: true,
     collectionType: "Text and video",
     logoUrl: null
   });
 
+  const navigate = useNavigate();
+
   const fileInputRef = useRef(null);
+
+  const handleSubmit = () => {
+    if (!form.spaceName) {
+      alert("Space name is required.");
+      return;
+    }
+    
+    navigate("/space-success", { state: { spaceName: form.spaceName } });
+  };
 
   const handleLogoUpload = (e) => {
     const file = e.target.files?.[0];
@@ -245,7 +258,10 @@ export default function CreateSpaceModal({ onClose }) {
                 </div>
               </div>
 
-              <Button className="w-full bg-[#5D5FEF] hover:bg-[#4F51D6] text-white py-6 rounded-lg font-bold text-base shadow-lg shadow-indigo-500/20">
+              <Button 
+                onClick={handleSubmit}
+                className="w-full bg-[#5D5FEF] hover:bg-[#4F51D6] text-white py-6 rounded-lg font-bold text-base shadow-lg shadow-indigo-500/20"
+              >
                 Create new Space
               </Button>
 
