@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, Inbox, Heart, Edit, Share2, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Inbox, Heart, Edit, Share2, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { SpaceContext } from "../context/SpaceContext";
@@ -22,6 +22,32 @@ export default function WallConfiguration() {
   const [oneRowSlider, setOneRowSlider] = useState(false);
   const [sameHeightVideos, setSameHeightVideos] = useState(true);
   const [saving, setSaving] = useState(false);
+
+
+  const [previewTestimonials, setPreviewTestimonials] = useState([]);
+  const [loadingPreview, setLoadingPreview] = useState(false);
+
+  useEffect(() => {
+    if (!activeSpace?._id) return;
+    const fetchPreview = async () => {
+      setLoadingPreview(true);
+      try {
+        const res = await api.get(`/workspace/${activeSpace._id}/testimonials?status=approved`);
+        setPreviewTestimonials(res.data.testimonials?.slice(0, 3) || []);
+      } catch (_) {}
+      finally { setLoadingPreview(false); }
+    };
+    fetchPreview();
+  }, [activeSpace?._id]);
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "";
+    const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+    if (diff < 3600) return `${Math.floor(diff / 60)}m`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}d`;
+    return `${Math.floor(diff / 604800)}w`;
+  };
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -130,94 +156,95 @@ export default function WallConfiguration() {
 
                 <div className={`flex-1 border border-[#1F1F1F] rounded-3xl relative flex flex-col items-center justify-center p-8 min-h-[500px] transition-colors duration-300 ${darkTheme ? 'bg-[#0A0A0A]' : 'bg-[#FAFAFA]'}`}>
                     
-                    <div className="w-full max-w-lg flex items-start justify-center gap-6 pointer-events-none transition-all duration-300">
-                        
+                    {loadingPreview ? (
+                      <div className="flex items-center justify-center h-64">
+                        <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
+                      </div>
+                    ) : previewTestimonials.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center h-64 gap-3">
+                        <p className={`text-sm font-medium ${darkTheme ? 'text-gray-500' : 'text-gray-400'}`}>No approved testimonials yet</p>
+                        <p className={`text-xs ${darkTheme ? 'text-gray-600' : 'text-gray-500'}`}>Approve testimonials in Inbox to see them here</p>
+                      </div>
+                    ) : (
+                      <div className="w-full max-w-lg flex items-start justify-center gap-6 pointer-events-none transition-all duration-300">
                         <div className="flex flex-col gap-6 flex-1 pt-12">
-                            <div className={`transition-all duration-300 border rounded-2xl shadow-xl ${darkTheme ? 'bg-[#151515] border-[#222]' : 'bg-white border-gray-200'} ${cardSize === 'Small' ? 'p-4' : cardSize === 'Large' ? 'p-8' : 'p-6'}`}>
-                                <div className="flex gap-1 mb-4">
-                                    {Array(5).fill(0).map((_, i) => <span key={i} className={`text-sm ${darkTheme ? 'text-[#F59E0B]' : 'text-yellow-400'}`}>★</span>)}
-                                </div>
-                                <p className={`leading-relaxed mb-6 ${darkTheme ? 'text-gray-200' : 'text-gray-800'} ${cardSize === 'Small' ? 'text-xs' : cardSize === 'Large' ? 'text-base' : 'text-sm'}`}>
-                                    "This tool is a game changer for our social proof! Setting up the wall took less than 2 minutes."
+                          {previewTestimonials.slice(0, 2).map((t) => (
+                            <div key={t._id} className={`transition-all duration-300 border rounded-2xl shadow-xl ${darkTheme ? 'bg-[#151515] border-[#222]' : 'bg-white border-gray-200'} ${cardSize === 'Small' ? 'p-4' : cardSize === 'Large' ? 'p-8' : 'p-6'}`}>
+                              <div className="flex gap-1 mb-4">
+                                {Array(t.rating || 5).fill(0).map((_, i) => <span key={i} className={`text-sm ${darkTheme ? 'text-[#F59E0B]' : 'text-yellow-400'}`}>★</span>)}
+                                {Array(5 - (t.rating || 5)).fill(0).map((_, i) => <span key={i} className="text-gray-400 text-sm">★</span>)}
+                              </div>
+                              {t.type === 'video' && t.videoUrl ? (
+                                <video src={t.videoUrl} controls className="w-full rounded-xl mb-6 max-h-36 object-cover" />
+                              ) : (
+                                <p className={`leading-relaxed mb-6 line-clamp-3 ${darkTheme ? 'text-gray-200' : 'text-gray-800'} ${cardSize === 'Small' ? 'text-xs' : cardSize === 'Large' ? 'text-base' : 'text-sm'}`}>
+                                  &quot;{t.message}&quot;
                                 </p>
-                                <div className="flex items-center gap-3">
-                                    {!minimizeImages && <div className={`w-10 h-10 rounded-full flex-shrink-0 ${darkTheme ? 'bg-[#2A2A2A]' : 'bg-gray-200'}`} />}
-                                    <div className="flex-1 min-w-0 flex flex-col justify-center">
-                                        <div className="flex items-center justify-between">
-                                            <p className={`font-bold truncate ${darkTheme ? 'text-white' : 'text-black'} ${cardSize === 'Small' ? 'text-xs' : cardSize === 'Large' ? 'text-base' : 'text-sm'}`}>Sarah Chen</p>
-                                            {!hideSourceIcons && (
-                                                <div className={`w-3 h-3 rounded-sm ml-2 flex-shrink-0 ${darkTheme ? 'bg-[#333]' : 'bg-gray-300'}`} />
-                                            )}
-                                        </div>
-                                        <div className="flex text-[11px] gap-2 items-center mt-0.5">
-                                            <p className={`truncate ${darkTheme ? 'text-gray-500' : 'text-gray-500'}`}>Product Designer</p>
-                                            {!hideDate && <span className={darkTheme ? 'text-gray-600' : 'text-gray-400'}>• 2d</span>}
-                                        </div>
-                                    </div>
+                              )}
+                              <div className="flex items-center gap-3">
+                                {!minimizeImages && (
+                                  <div className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-bold ${darkTheme ? 'bg-[#2A2A2A] text-white' : 'bg-gray-200 text-gray-700'}`}>
+                                    {t.name?.charAt(0).toUpperCase()}
+                                  </div>
+                                )}
+                                <div className="flex-1 min-w-0 flex flex-col justify-center">
+                                  <div className="flex items-center justify-between">
+                                    <p className={`font-bold truncate ${darkTheme ? 'text-white' : 'text-black'} ${cardSize === 'Small' ? 'text-xs' : cardSize === 'Large' ? 'text-base' : 'text-sm'}`}>{t.name}</p>
+                                    {!hideSourceIcons && <div className={`w-3 h-3 rounded-sm ml-2 flex-shrink-0 ${darkTheme ? 'bg-[#333]' : 'bg-gray-300'}`} />}
+                                  </div>
+                                  <div className="flex text-[11px] gap-2 items-center mt-0.5">
+                                    <p className={`truncate ${darkTheme ? 'text-gray-500' : 'text-gray-500'}`}>{t.email}</p>
+                                    {!hideDate && <span className={darkTheme ? 'text-gray-600' : 'text-gray-400'}>• {formatDate(t.createdAt)}</span>}
+                                  </div>
                                 </div>
+                              </div>
                             </div>
-
-                            <div className={`transition-all duration-300 border rounded-2xl shadow-xl opacity-70 ${darkTheme ? 'bg-[#151515] border-[#222]' : 'bg-white border-gray-200'} ${cardSize === 'Small' ? 'p-4' : cardSize === 'Large' ? 'p-8' : 'p-6'}`}>
-                                <div className="flex gap-1 mb-4">
-                                    {Array(5).fill(0).map((_, i) => <span key={i} className={`text-sm ${darkTheme ? 'text-[#F59E0B]' : 'text-yellow-400'}`}>★</span>)}
-                                </div>
-                                <p className={`leading-relaxed mb-6 line-clamp-2 ${darkTheme ? 'text-gray-400' : 'text-gray-600'} ${cardSize === 'Small' ? 'text-xs' : cardSize === 'Large' ? 'text-base' : 'text-sm'}`}>
-                                    "The dark theme looks absolutely stunning..."
-                                </p>
-                                <div className="flex items-center gap-3">
-                                    {!minimizeImages && <div className={`w-10 h-10 rounded-full flex-shrink-0 ${darkTheme ? 'bg-[#2A2A2A]' : 'bg-gray-200'}`} />}
-                                    <div className="flex-1 min-w-0 flex flex-col justify-center">
-                                        <div className="flex items-center justify-between">
-                                            <p className={`font-bold truncate ${darkTheme ? 'text-white' : 'text-black'} ${cardSize === 'Small' ? 'text-xs' : cardSize === 'Large' ? 'text-base' : 'text-sm'}`}>Jordan Smith</p>
-                                            {!hideSourceIcons && (
-                                                <div className={`w-3 h-3 rounded-sm ml-2 flex-shrink-0 ${darkTheme ? 'bg-[#333]' : 'bg-gray-300'}`} />
-                                            )}
-                                        </div>
-                                        {!hideDate && (
-                                            <div className="flex text-[11px] mt-0.5">
-                                                <span className={darkTheme ? 'text-gray-600' : 'text-gray-400'}>1w</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
+                          ))}
                         </div>
 
                         <div className="flex flex-col gap-6 flex-1">
-                            <div className={`transition-all duration-300 border rounded-2xl shadow-xl transform hover:scale-105 ${darkTheme ? 'bg-[#151515] border-[#222]' : 'bg-white border-gray-200'} ${cardSize === 'Small' ? 'p-4' : cardSize === 'Large' ? 'p-8' : 'p-6'}`}>
-                                <div className="flex gap-1 mb-4">
-                                    {Array(4).fill(0).map((_, i) => <span key={i} className={`text-sm ${darkTheme ? 'text-[#F59E0B]' : 'text-yellow-400'}`}>★</span>)}
-                                    <span className="text-gray-400 text-sm">★</span>
-                                </div>
-                                <p className={`leading-relaxed mb-6 ${darkTheme ? 'text-gray-200' : 'text-gray-800'} ${cardSize === 'Small' ? 'text-xs' : cardSize === 'Large' ? 'text-base' : 'text-sm'}`}>
-                                    "Best testimonial software we've used so far. The embedding process is seamless."
+                          {previewTestimonials.slice(2, 3).map((t) => (
+                            <div key={t._id} className={`transition-all duration-300 border rounded-2xl shadow-xl ${darkTheme ? 'bg-[#151515] border-[#222]' : 'bg-white border-gray-200'} ${cardSize === 'Small' ? 'p-4' : cardSize === 'Large' ? 'p-8' : 'p-6'}`}>
+                              <div className="flex gap-1 mb-4">
+                                {Array(t.rating || 5).fill(0).map((_, i) => <span key={i} className={`text-sm ${darkTheme ? 'text-[#F59E0B]' : 'text-yellow-400'}`}>★</span>)}
+                                {Array(5 - (t.rating || 5)).fill(0).map((_, i) => <span key={i} className="text-gray-400 text-sm">★</span>)}
+                              </div>
+                              {t.type === 'video' && t.videoUrl ? (
+                                <video src={t.videoUrl} controls className="w-full rounded-xl mb-6 max-h-36 object-cover" />
+                              ) : (
+                                <p className={`leading-relaxed mb-6 line-clamp-3 ${darkTheme ? 'text-gray-200' : 'text-gray-800'} ${cardSize === 'Small' ? 'text-xs' : cardSize === 'Large' ? 'text-base' : 'text-sm'}`}>
+                                  &quot;{t.message}&quot;
                                 </p>
-                                <div className="flex items-center gap-3">
-                                    {!minimizeImages && <div className={`w-10 h-10 rounded-full flex-shrink-0 ${darkTheme ? 'bg-[#2A2A2A]' : 'bg-gray-200'}`} />}
-                                    <div className="flex-1 min-w-0 flex flex-col justify-center">
-                                        <div className="flex items-center justify-between">
-                                            <p className={`font-bold truncate ${darkTheme ? 'text-white' : 'text-black'} ${cardSize === 'Small' ? 'text-xs' : cardSize === 'Large' ? 'text-base' : 'text-sm'}`}>Marcus Aurelius</p>
-                                            {!hideSourceIcons && (
-                                                <div className={`w-3 h-3 rounded-sm ml-2 flex-shrink-0 ${darkTheme ? 'bg-[#333]' : 'bg-gray-300'}`} />
-                                            )}
-                                        </div>
-                                        <div className="flex text-[11px] gap-2 items-center mt-0.5">
-                                            <p className={`truncate ${darkTheme ? 'text-gray-500' : 'text-gray-500'}`}>Marketing Lead</p>
-                                            {!hideDate && <span className={darkTheme ? 'text-gray-600' : 'text-gray-400'}>• 1mo</span>}
-                                        </div>
-                                    </div>
+                              )}
+                              <div className="flex items-center gap-3">
+                                {!minimizeImages && (
+                                  <div className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-bold ${darkTheme ? 'bg-[#2A2A2A] text-white' : 'bg-gray-200 text-gray-700'}`}>
+                                    {t.name?.charAt(0).toUpperCase()}
+                                  </div>
+                                )}
+                                <div className="flex-1 min-w-0 flex flex-col justify-center">
+                                  <div className="flex items-center justify-between">
+                                    <p className={`font-bold truncate ${darkTheme ? 'text-white' : 'text-black'} ${cardSize === 'Small' ? 'text-xs' : cardSize === 'Large' ? 'text-base' : 'text-sm'}`}>{t.name}</p>
+                                    {!hideSourceIcons && <div className={`w-3 h-3 rounded-sm ml-2 flex-shrink-0 ${darkTheme ? 'bg-[#333]' : 'bg-gray-300'}`} />}
+                                  </div>
+                                  <div className="flex text-[11px] gap-2 items-center mt-0.5">
+                                    <p className={`truncate ${darkTheme ? 'text-gray-500' : 'text-gray-500'}`}>{t.email}</p>
+                                    {!hideDate && <span className={darkTheme ? 'text-gray-600' : 'text-gray-400'}>• {formatDate(t.createdAt)}</span>}
+                                  </div>
                                 </div>
+                              </div>
                             </div>
-                            
-                            {showMoreButton && layout !== 'carousel' && (
-                                <div className="flex justify-center mt-2">
-                                    <div className={`px-4 py-2 rounded-lg text-[10px] font-bold tracking-wide uppercase shadow-sm ${darkTheme ? 'bg-[#222] text-white hover:bg-[#333]' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>
-                                        Load More
-                                    </div>
-                                </div>
-                            )}
+                          ))}
+                          {showMoreButton && layout !== 'carousel' && (
+                            <div className="flex justify-center mt-2">
+                              <div className={`px-4 py-2 rounded-lg text-[10px] font-bold tracking-wide uppercase shadow-sm ${darkTheme ? 'bg-[#222] text-white' : 'bg-gray-200 text-gray-700'}`}>
+                                Load More
+                              </div>
+                            </div>
+                          )}
                         </div>
-                    </div>
+                      </div>
+                    )}
 
                     {layout === 'carousel' && (
                         <div className="absolute bottom-8 flex items-center justify-center w-full px-12">
