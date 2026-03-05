@@ -28,7 +28,6 @@ export default function Dashboard() {
   const [loadingSpaces, setLoadingSpaces] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch all spaces for the logged-in user on mount
   useEffect(() => {
     const fetchSpaces = async () => {
       try {
@@ -48,13 +47,13 @@ export default function Dashboard() {
     navigate("/login", { replace: true });
   };
 
-  // Set active space and navigate to its inbox
+
   const handleSelectSpace = (space) => {
     selectSpace(space);
     navigate("/inbox");
   };
 
-  // Client-side search filter
+
   const filteredSpaces = spaces.filter((s) =>
     s.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -90,7 +89,6 @@ export default function Dashboard() {
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-8 flex flex-col gap-10">
 
-        {/* Stat Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="col-span-1 bg-[#1A1A1A] border-[#2A2A2A] shadow-none rounded-2xl">
             <CardContent className="p-6">
@@ -116,7 +114,6 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Toolbar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
           <h2 className="text-2xl font-bold text-white tracking-tight">Your Spaces</h2>
           <div className="flex items-center gap-4">
@@ -139,7 +136,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Space list or empty state */}
         {loadingSpaces ? (
           <div className="flex-1 flex items-center justify-center mt-8">
             <Loader2 className="w-8 h-8 animate-spin text-[#6B6B6B]" />

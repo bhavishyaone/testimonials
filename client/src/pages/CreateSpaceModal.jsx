@@ -35,7 +35,6 @@ export default function CreateSpaceModal({ onClose }) {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
-  // Map UI label to backend enum value
   const collectionTypeMap = {
     "Text and video": "both",
     "Text only": "text",
