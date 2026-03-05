@@ -9,6 +9,7 @@ import SpaceInbox from "./pages/SpaceInbox.jsx";
 import WallOfLove from "./pages/WallOfLove.jsx";
 import WallConfiguration from "./pages/WallConfiguration.jsx";
 import EmbedCode from "./pages/EmbedCode.jsx";
+import NotFound from "./pages/NotFound.jsx";
 import PublicTestimonial from "./pages/PublicTestimonial.jsx";
 import ThankYou from "./pages/ThankYou.jsx";
 import ShareLink from "./pages/ShareLink.jsx";
@@ -80,6 +81,7 @@ const App = () => {
           <Route path="/thank-you" element={<ThankYou />} />
           <Route path="/share" element={<ShareLink />} />
           <Route path="/:spaceSlug" element={<PublicTestimonial />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </AuthProvider>
