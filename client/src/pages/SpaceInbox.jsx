@@ -232,19 +232,18 @@ export default function SpaceInbox() {
                       &quot;{t.content}&quot;
                     </p>
                   ) : (
-                    <div className="w-full h-40 bg-[#1A1A1A] rounded-lg overflow-hidden relative group cursor-pointer">
+                    <div className="w-full h-40 bg-[#1A1A1A] rounded-lg overflow-hidden relative">
                       {t.videoUrl ? (
-                        <video src={t.videoUrl} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                        <video
+                          src={t.videoUrl}
+                          controls
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <VideoIcon className="w-8 h-8 text-gray-600" />
                         </div>
                       )}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-10 h-10 bg-black/50 rounded-full flex items-center justify-center backdrop-blur-sm">
-                          <div className="w-0 h-0 border-t-4 border-t-transparent border-l-6 border-l-white border-b-4 border-b-transparent ml-1" />
-                        </div>
-                      </div>
                     </div>
                   )}
                 </div>
