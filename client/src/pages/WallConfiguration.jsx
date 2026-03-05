@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Inbox, Heart, Edit, Share2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -19,6 +19,7 @@ export default function WallConfiguration() {
   const [sameHeightVideos, setSameHeightVideos] = useState(true);
 
   const location = useLocation();
+  const navigate = useNavigate();
   const layout = location.state?.layout || "animated";
 
   const switchClass = "data-[state=checked]:bg-white data-[state=unchecked]:bg-[#2a2a2a] [&>span]:data-[state=checked]:bg-black [&>span]:data-[state=unchecked]:bg-gray-400 border-none shadow-none ring-0";
@@ -65,9 +66,12 @@ export default function WallConfiguration() {
         <header className="flex items-center justify-center px-8 py-4 border-b border-[#1F1F1F] relative shrink-0">
           <span className="absolute left-8 text-[10px] text-gray-500 font-bold tracking-widest uppercase">Page 15</span>
           <h2 className="text-[12px] font-bold text-white uppercase tracking-widest">Wall Configuration</h2>
-          <span className="absolute right-8 text-[11px] text-gray-500 font-semibold cursor-pointer hover:text-white transition-colors">
+          <button
+            onClick={() => navigate("/embed-code", { state: { layout } })}
+            className="absolute right-8 text-[11px] text-gray-500 font-semibold cursor-pointer hover:text-white transition-colors"
+          >
             → Page 16: Embed Code
-          </span>
+          </button>
         </header>
 
         <div className="flex-1 flex overflow-hidden">
@@ -279,8 +283,11 @@ export default function WallConfiguration() {
                 </div>
                 
                 <div className="p-8 pb-10 border-t border-[#1F1F1F] bg-[#0A0A0A]">
-                    <Button className="w-full bg-white text-black hover:bg-gray-200 py-6 rounded-xl font-bold text-[15px] shadow-lg">
-                        Save & Continue
+                    <Button
+                        onClick={() => navigate("/embed-code", { state: { layout } })}
+                        className="w-full bg-white text-black hover:bg-gray-200 py-6 rounded-xl font-bold text-[15px] shadow-lg"
+                    >
+                        Save &amp; Continue
                     </Button>
                 </div>
             </div>

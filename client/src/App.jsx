@@ -8,6 +8,7 @@ import SpaceSuccessModal from "./pages/SpaceSuccessModal.jsx";
 import SpaceInbox from "./pages/SpaceInbox.jsx";
 import WallOfLove from "./pages/WallOfLove.jsx";
 import WallConfiguration from "./pages/WallConfiguration.jsx";
+import EmbedCode from "./pages/EmbedCode.jsx";
 import PublicTestimonial from "./pages/PublicTestimonial.jsx";
 import ThankYou from "./pages/ThankYou.jsx";
 import ShareLink from "./pages/ShareLink.jsx";
@@ -75,6 +76,7 @@ const App = () => {
           <Route path="/inbox" element={<SpaceInbox testimonials={testimonials} setTestimonials={setTestimonials} />} />
           <Route path="/wall-of-love" element={<WallOfLove testimonials={testimonials} />} />
           <Route path="/wall-configuration" element={<WallConfiguration />} />
+          <Route path="/embed-code" element={<EmbedCode />} />
           <Route path="/thank-you" element={<ThankYou />} />
           <Route path="/share" element={<ShareLink />} />
           <Route path="/:spaceSlug" element={<PublicTestimonial />} />
