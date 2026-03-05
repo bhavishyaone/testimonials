@@ -95,6 +95,19 @@ export default function SpaceInbox() {
     setTestimonials(prev => prev.filter(t => t._id !== id));
   };
 
+
+  const filteredTestimonials = testimonials.filter(t => {
+    let matchesCategory = false;
+    if (filter === "All") matchesCategory = !t.archived && !t.spam;
+    else if (filter === "Video") matchesCategory = t.type === "video" && !t.archived && !t.spam;
+    else if (filter === "Text") matchesCategory = t.type === "text" && !t.archived && !t.spam;
+    else if (filter === "Liked") matchesCategory = t.liked === true;
+    else if (filter === "Archived") matchesCategory = t.archived === true;
+    else if (filter === "Spam") matchesCategory = t.spam === true;
+    const matchesSearch = (t.name || "").toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white flex font-sans">
       
@@ -178,14 +191,23 @@ export default function SpaceInbox() {
             />
           </div>
 
+          {loading ? (
+            <div className="flex items-center justify-center mt-16">
+              <Loader2 className="w-8 h-8 animate-spin text-[#6B6B6B]" />
+            </div>
+          ) : filteredTestimonials.length === 0 ? (
+            <div className="flex flex-col items-center justify-center mt-16 text-center">
+              <p className="text-gray-500 text-sm">No testimonials found.</p>
+            </div>
+          ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredTestimonials.map((t) => (
-              <div key={t.id} className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-6 flex flex-col">
+              <div key={t._id} className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-6 flex flex-col">
                 
 
                 <div className="flex flex-col items-center mb-4">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold mb-3 ${t.avatarColor}`}>
-                    {t.avatarInitial}
+                  <div className="w-12 h-12 rounded-full bg-[#2A2A2A] flex items-center justify-center text-lg font-bold mb-3 text-white">
+                    {(t.name || "?").charAt(0).toUpperCase()}
                   </div>
                   <div className="flex items-center gap-2">
                     <h3 className="font-semibold text-white">{t.name}</h3>
@@ -198,7 +220,7 @@ export default function SpaceInbox() {
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500">{t.email}  {t.timeAgo}</p>
+                  <p className="text-xs text-gray-500">{t.email}</p>
                 </div>
 
                 <StarRating rating={t.rating} />
@@ -207,11 +229,17 @@ export default function SpaceInbox() {
                 <div className="flex-1 mb-6">
                   {t.type === "text" ? (
                     <p className="text-sm text-gray-400 leading-relaxed text-center">
-                      "{t.content}"
+                      &quot;{t.content}&quot;
                     </p>
                   ) : (
                     <div className="w-full h-40 bg-[#1A1A1A] rounded-lg overflow-hidden relative group cursor-pointer">
-                      <img src={t.videoThumbnail} alt="Video Thumbnail" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                      {t.videoUrl ? (
+                        <video src={t.videoUrl} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <VideoIcon className="w-8 h-8 text-gray-600" />
+                        </div>
+                      )}
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-10 h-10 bg-black/50 rounded-full flex items-center justify-center backdrop-blur-sm">
                           <div className="w-0 h-0 border-t-4 border-t-transparent border-l-6 border-l-white border-b-4 border-b-transparent ml-1" />
@@ -224,47 +252,45 @@ export default function SpaceInbox() {
 
                 <div className="flex items-center justify-between pt-4 border-t border-[#1F1F1F]">
                   <div className="flex items-center gap-2">
-                    <button onClick={() => toggleLike(t.id)} className="w-8 h-8 rounded-full hover:bg-[#1A1A1A] flex items-center justify-center transition-colors">
+                    <button onClick={() => toggleLike(t._id)} className="w-8 h-8 rounded-full hover:bg-[#1A1A1A] flex items-center justify-center transition-colors">
                       {t.liked ? (
                         <Heart className="w-4 h-4 text-red-500 fill-red-500" />
                       ) : (
                         <HeartOutline className="w-4 h-4 text-gray-500 hover:text-white" />
                       )}
                     </button>
-                    <button onClick={() => handleArchive(t.id)} className="w-8 h-8 rounded-full hover:bg-[#1A1A1A] flex items-center justify-center transition-colors">
+                    <button onClick={() => handleArchive(t._id)} className="w-8 h-8 rounded-full hover:bg-[#1A1A1A] flex items-center justify-center transition-colors">
                       <Archive className="w-4 h-4 text-gray-500 hover:text-white" />
                     </button>
-                    <button onClick={() => handleSpam(t.id)} className="w-8 h-8 rounded-full hover:bg-[#1A1A1A] flex items-center justify-center transition-colors group">
+                    <button onClick={() => handleSpam(t._id)} className="w-8 h-8 rounded-full hover:bg-[#1A1A1A] flex items-center justify-center transition-colors group">
                       <AlertOctagon className="w-4 h-4 text-gray-500 group-hover:text-red-400" />
                     </button>
-                    <button onClick={() => handleDelete(t.id)} className="w-8 h-8 rounded-full hover:bg-[#1A1A1A] flex items-center justify-center transition-colors group">
+                    <button onClick={() => handleDelete(t._id)} className="w-8 h-8 rounded-full hover:bg-[#1A1A1A] flex items-center justify-center transition-colors group">
                       <Trash2 className="w-4 h-4 text-gray-500 group-hover:text-red-500" />
                     </button>
                   </div>
-                  
+
                   {t.status === "pending" ? (
                     <div className="flex items-center gap-2">
-                      <button onClick={() => handleApprove(t.id)} className="w-8 h-8 rounded bg-[#064E3B] hover:bg-[#065F46] flex items-center justify-center transition-colors">
+                      <button onClick={() => handleApprove(t._id)} className="w-8 h-8 rounded bg-[#064E3B] hover:bg-[#065F46] flex items-center justify-center transition-colors">
                         <CheckCircle className="w-4 h-4 text-[#34D399]" />
                       </button>
-                      <button onClick={() => handleReject(t.id)} className="w-8 h-8 rounded bg-[#450A0A] hover:bg-[#7F1D1D] flex items-center justify-center transition-colors">
+                      <button onClick={() => handleReject(t._id)} className="w-8 h-8 rounded bg-[#450A0A] hover:bg-[#7F1D1D] flex items-center justify-center transition-colors">
                         <XCircle className="w-4 h-4 text-[#F87171]" />
                       </button>
                     </div>
                   ) : t.status === "approved" ? (
-                    <button onClick={() => handleUnapprove(t.id)} title="Unapprove (remove from Wall of Love)" className="w-8 h-8 rounded bg-[#1A1A1A] hover:bg-[#2A2A2A] flex items-center justify-center transition-colors group">
-                       <Undo2 className="w-4 h-4 text-gray-400 group-hover:text-white" />
+                    <button onClick={() => handleUnapprove(t._id)} title="Unapprove" className="w-8 h-8 rounded bg-[#1A1A1A] hover:bg-[#2A2A2A] flex items-center justify-center transition-colors group">
+                      <Undo2 className="w-4 h-4 text-gray-400 group-hover:text-white" />
                     </button>
                   ) : (
-                    <div className="w-8 h-8 text-transparent flex items-center justify-center select-none cursor-default">
-                      
-                    </div>
+                    <div className="w-8 h-8 text-transparent flex items-center justify-center select-none cursor-default" />
                   )}
                 </div>
-
               </div>
             ))}
           </div>
+          )}
 
         </div>
       </main>
