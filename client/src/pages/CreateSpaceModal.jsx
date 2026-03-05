@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { X, Video, Edit3, Image as ImageIcon, Check, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,8 +12,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import api from "../lib/api";
+import { SpaceContext } from "../context/SpaceContext";
 
 export default function CreateSpaceModal({ onClose }) {
+  const { selectSpace } = useContext(SpaceContext);
   const [form, setForm] = useState({
     spaceName: "",
     headerTitle: "Your Header Here",
@@ -22,27 +25,58 @@ export default function CreateSpaceModal({ onClose }) {
     theme: "light",
     collectName: true,
     collectEmail: true,
-    collectEmail: true,
     collectionType: "Text and video",
     logoUrl: null
   });
+  const [logoFile, setLogoFile] = useState(null);
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const navigate = useNavigate();
-
   const fileInputRef = useRef(null);
 
-  const handleSubmit = () => {
-    if (!form.spaceName) {
-      alert("Space name is required.");
-      return;
+  // Map UI label to backend enum value
+  const collectionTypeMap = {
+    "Text and video": "both",
+    "Text only": "text",
+    "Video only": "video",
+  };
+
+  const handleSubmit = async () => {
+    setError("");
+    if (!form.spaceName.trim()) return setError("Space name is required.");
+    if (!form.headerTitle.trim()) return setError("Header title is required.");
+    if (form.customMessage.trim().length < 30) return setError("Custom message must be at least 30 characters.");
+
+    const formData = new FormData();
+    formData.append("name", form.spaceName.trim());
+    formData.append("headerTitle", form.headerTitle.trim());
+    formData.append("customMessage", form.customMessage.trim());
+    formData.append("collectName", form.collectName);
+    formData.append("collectEmail", form.collectEmail);
+    formData.append("collectionType", collectionTypeMap[form.collectionType] || "both");
+    formData.append("allowStarRating", form.collectStarRatings);
+    formData.append("theme", form.theme);
+    if (logoFile) formData.append("logo", logoFile);
+
+    setSubmitting(true);
+    try {
+      const res = await api.post("/workspace", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      selectSpace(res.data.workspace);
+      navigate("/space-success");
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to create space. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
-    
-    navigate("/space-success", { state: { spaceName: form.spaceName } });
   };
 
   const handleLogoUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      setLogoFile(file);
       const imageUrl = URL.createObjectURL(file);
       setForm(prev => ({ ...prev, logoUrl: imageUrl }));
     }
@@ -258,11 +292,16 @@ export default function CreateSpaceModal({ onClose }) {
                 </div>
               </div>
 
-              <Button 
+              {error && (
+                <p className="text-red-500 text-xs font-medium">{error}</p>
+              )}
+
+              <Button
                 onClick={handleSubmit}
+                disabled={submitting}
                 className="w-full bg-[#5D5FEF] hover:bg-[#4F51D6] text-white py-6 rounded-lg font-bold text-base shadow-lg shadow-indigo-500/20"
               >
-                Create new Space
+                {submitting ? "Creating..." : "Create new Space"}
               </Button>
 
             </div>
