@@ -209,7 +209,7 @@ export default function EditSpace() {
                       onChange={(e) => setForm({...form, spaceName: e.target.value})}
                       className="bg-white border-gray-200 focus-visible:ring-[#5D5FEF]" 
                     />
-                    <p className="text-[11px] text-gray-400">Public URL is: useproof.io/{form.spaceName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}</p>
+                    <p className="text-[11px] text-gray-400">Public URL is: {window.location.host}/{form.spaceName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}</p>
                   </div>
 
                   <div className="space-y-3">

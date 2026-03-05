@@ -149,7 +149,7 @@ export default function CreateSpaceModal({ onClose }) {
                   onChange={(e) => setForm({...form, spaceName: e.target.value})}
                   className="bg-white border-gray-200 focus-visible:ring-[#5D5FEF]" 
                 />
-                <p className="text-[11px] text-gray-400">Public URL is: useproof.io/your-space-name</p>
+                <p className="text-[11px] text-gray-400">Public URL is: {window.location.host}/your-space-name</p>
               </div>
 
               <div className="space-y-3">
