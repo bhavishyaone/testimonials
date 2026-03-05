@@ -1,12 +1,14 @@
-import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useState, useContext } from "react";
+import { Link } from "react-router-dom";
 import { ArrowLeft, Inbox, Heart, Edit, Share2, Copy, Check, Link as LinkIcon } from "lucide-react";
+import { SpaceContext } from "../context/SpaceContext";
 
 export default function ShareLink() {
   const [copied, setCopied] = useState(false);
-  const location = useLocation();
-  const spaceSlug = "bhavishya-s-product"; 
-  const publicUrl = `https://useproof.io/${spaceSlug}`;
+  const { activeSpace } = useContext(SpaceContext);
+  const spaceName = activeSpace?.name || "My Space";
+  const spaceInitial = spaceName.charAt(0).toUpperCase();
+  const publicUrl = `${window.location.origin}/${activeSpace?.slug || ""}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(publicUrl);
@@ -26,10 +28,14 @@ export default function ShareLink() {
           </Link>
 
           <div className="flex items-center gap-3 mb-8 px-3 py-2.5 bg-[#1F1F1F] rounded-xl border border-[#2A2A2A]">
-            <div className="w-8 h-8 rounded-lg bg-[#333333] flex items-center justify-center text-sm font-bold font-serif text-white">
-              B
+            <div className="w-8 h-8 rounded-lg bg-[#333333] flex items-center justify-center text-sm font-bold font-serif text-white overflow-hidden">
+              {activeSpace?.logo ? (
+                <img src={activeSpace.logo} alt="logo" className="w-full h-full object-cover" />
+              ) : (
+                spaceInitial
+              )}
             </div>
-            <span className="text-[15px] font-bold text-white tracking-wide truncate">Bhavishya's Pro...</span>
+            <span className="text-[15px] font-bold text-white tracking-wide truncate">{spaceName}</span>
           </div>
 
           <nav className="space-y-1">

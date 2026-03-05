@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Search, Inbox, Heart, Edit, Share2, ArrowLeft, Heart as HeartOutline, Trash2, CheckCircle, XCircle, Video as VideoIcon, Archive, AlertOctagon ,Undo2} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { SpaceContext } from "../context/SpaceContext";
 
 const FilterButton = ({ active, label, onClick }) => (
   <button
@@ -28,6 +29,10 @@ const StarRating = ({ rating }) => (
 );
 
 export default function SpaceInbox({ testimonials, setTestimonials }) {
+  const { activeSpace } = useContext(SpaceContext);
+  const spaceName = activeSpace?.name || "My Space";
+  const spaceInitial = spaceName.charAt(0).toUpperCase();
+
   const [filter, setFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -92,10 +97,14 @@ export default function SpaceInbox({ testimonials, setTestimonials }) {
 
 
           <div className="flex items-center gap-3 mb-8 px-3 py-2.5 bg-[#1F1F1F] rounded-xl border border-[#2A2A2A]">
-            <div className="w-8 h-8 rounded-lg bg-[#333333] flex items-center justify-center text-sm font-bold font-serif text-white">
-              B
+            <div className="w-8 h-8 rounded-lg bg-[#333333] flex items-center justify-center text-sm font-bold font-serif text-white overflow-hidden">
+              {activeSpace?.logo ? (
+                <img src={activeSpace.logo} alt="logo" className="w-full h-full object-cover" />
+              ) : (
+                spaceInitial
+              )}
             </div>
-            <span className="text-[15px] font-bold text-white tracking-wide truncate">Bhavishya's Pro...</span>
+            <span className="text-[15px] font-bold text-white tracking-wide truncate">{spaceName}</span>
           </div>
 
           <nav className="space-y-1">
