@@ -233,40 +233,9 @@ export default function CreateSpaceModal({ onClose }) {
                 </DropdownMenu>
               </div>
 
-              <div className="flex items-center justify-between pt-4 pb-8">
+              <div className="flex items-center justify-between pt-4 pb-8"> 
                 <div className="space-y-2">
-                  <Label className="text-[11px] font-bold text-gray-600">Collection type</Label>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <div className="border border-gray-200 rounded-md px-3 py-1.5 text-xs text-gray-700 bg-white min-w-[130px] flex justify-between items-center cursor-pointer">
-                        {form.collectionType} <span className="text-gray-400">▼</span>
-                      </div>
-                    </DropdownMenuTrigger>
-                    
-                    <DropdownMenuContent className="w-48 bg-[#444444] border-0 text-white rounded-xl shadow-2xl p-2" align="start">
-                      <DropdownMenuItem 
-                        onClick={() => setForm({...form, collectionType: "Text and video"})}
-                        className="flex items-center gap-2 p-2 focus:bg-[#555] cursor-pointer rounded-lg text-sm font-medium"
-                      >
-                        <div className="w-4 flex justify-center">{form.collectionType === "Text and video" && <Check className="w-4 h-4" />}</div>
-                        Text and video
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => setForm({...form, collectionType: "Text only"})}
-                        className="flex items-center gap-2 p-2 focus:bg-[#555] cursor-pointer rounded-lg text-sm font-medium"
-                      >
-                        <div className="w-4 flex justify-center">{form.collectionType === "Text only" && <Check className="w-4 h-4" />}</div>
-                        Text only
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => setForm({...form, collectionType: "Video only"})}
-                        className="flex items-center gap-2 p-2 focus:bg-[#555] cursor-pointer rounded-lg text-sm font-medium"
-                      >
-                        <div className="w-4 flex justify-center">{form.collectionType === "Video only" && <Check className="w-4 h-4" />}</div>
-                        Video only
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[11px] font-bold text-gray-600">Collect star ratings</Label>
