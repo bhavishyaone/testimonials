@@ -231,22 +231,23 @@ export const getEmbedData = async (req, res) => {
       return res.status(404).json({ message: "Wall not found." });
     }
    
-    const testimonials = await Testimonial.find({
-      _id: { $in: wall.testimonialOrder },
-      status: "approved",
-      spam: false,
-      archived: false
-    }).select("type name rating message videoUrl createdAt");
+   const testimonials = await Testimonial.find(
+      wall.testimonialOrder && wall.testimonialOrder.length > 0
+        ? { _id: { $in: wall.testimonialOrder }, status: "approved", spam: false, archived: false }
+        : { spaceId: wall.workspaceId, status: "approved", spam: false, archived: false }
+    ).select("type name rating message videoUrl createdAt").sort({ createdAt: -1 });
    
-    
-    const orderMap = {};
-    wall.testimonialOrder.forEach((id, index) => {
-      orderMap[id.toString()] = index;
-    });
+    let sortedTestimonials = testimonials;
 
-    const sortedTestimonials = testimonials.sort((a, b) => {
-      return orderMap[a._id.toString()] - orderMap[b._id.toString()];
-    });
+    if (wall.testimonialOrder && wall.testimonialOrder.length > 0) {
+      const orderMap = {};
+      wall.testimonialOrder.forEach((id, index) => {
+        orderMap[id.toString()] = index;
+      });
+      sortedTestimonials = testimonials.sort((a, b) => {
+        return orderMap[a._id.toString()] - orderMap[b._id.toString()];
+      });
+    }
 
     return res.status(200).json({
       config: {
