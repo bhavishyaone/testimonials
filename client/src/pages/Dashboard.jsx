@@ -210,7 +210,7 @@ export default function Dashboard() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-white font-semibold text-sm truncate group-hover:text-white">{space.name}</p>
-                    <p className="text-[#6B6B6B] text-xs truncate">/{space.slug}</p>
+
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -238,8 +238,8 @@ export default function Dashboard() {
                   </DropdownMenu>
                 </div>
                 <div className="flex items-center justify-between text-xs text-[#6B6B6B]">
-                  <span className="capitalize">{space.collectionType}</span>
-                  <span className="capitalize">{space.theme} theme</span>
+
+
                 </div>
               </div>
             ))}
