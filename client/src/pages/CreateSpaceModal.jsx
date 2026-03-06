@@ -144,12 +144,11 @@ export default function CreateSpaceModal({ onClose }) {
               <div className="space-y-2">
                 <Label className="text-xs font-bold text-gray-700">Space name *</Label>
                 <Input 
-                  placeholder="e.g. My Awesome Space" 
+                  placeholder="Enter Your Space Name" 
                   value={form.spaceName}
                   onChange={(e) => setForm({...form, spaceName: e.target.value})}
                   className="bg-white border-gray-200 focus-visible:ring-[#5D5FEF]" 
                 />
-                <p className="text-[11px] text-gray-400">Public URL is: {window.location.host}/your-space-name</p>
               </div>
 
               <div className="space-y-3">
